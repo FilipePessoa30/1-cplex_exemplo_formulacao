@@ -1,0 +1,48 @@
+cmake_minimum_required(VERSION 3.10)
+project(SeuProjeto)
+
+# Variáveis do sistema e diretórios do CPLEX e do Concert
+set(SYSTEM x86-64_linux)
+set(LIBFORMAT static_pic)
+set(CPLEXDIR /opt/ibm/ILOG/CPLEX_Studio2211/cplex)
+set(CONCERTDIR /opt/ibm/ILOG/CPLEX_Studio2211/concert)
+
+# Compilador e opções de compilação
+set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_CXX_FLAGS "-O0 -m64 -O -fPIC -fno-strict-aliasing -fexceptions -DNDEBUG -DIL_STD -Wno-ignored-attributes")
+
+# Bibliotecas e includes
+set(CPLEXBINDIR ${CPLEXDIR}/bin/${BINDIST})
+set(CPLEXLIBDIR ${CPLEXDIR}/lib/${SYSTEM}/${LIBFORMAT})
+set(CONCERTLIBDIR ${CONCERTDIR}/lib/${SYSTEM}/${LIBFORMAT})
+
+set(CPLEXBINDIR ${CPLEXDIR}/bin/${SYSTEM})
+set(CPLEXLIB cplex${dynamic:yes=2010})
+
+include_directories(${CPLEXDIR}/include ${CONCERTDIR}/include)
+
+# Arquivos fonte
+set(SOURCE_FILES
+    ex1.cpp
+    ex2.cpp
+    ex3.cpp
+    tsp.cpp
+    data.cpp)
+
+# Executáveis
+add_executable(ex1 ex1.cpp)
+add_executable(ex2 ex2.cpp)
+add_executable(ex3 ex3.cpp)
+add_executable(tsp tsp.cpp data.cpp)
+
+# Link com as bibliotecas do CPLEX e do Concert
+target_link_libraries(ex1 ${CPLEXLIB} concert ilocplex m pthread dl)
+target_link_libraries(ex2 ${CPLEXLIB} concert ilocplex m pthread dl)
+target_link_libraries(ex3 ${CPLEXLIB} concert ilocplex m pthread dl)
+target_link_libraries(tsp ${CPLEXLIB} concert ilocplex m pthread dl)
+
+# Limpeza
+add_custom_target(clean-all
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake/CleanAll.cmake
+    COMMENT "Limpeza de todos os executáveis e arquivos .o"
+)
